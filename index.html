@@ -762,23 +762,23 @@
   </div>
   <div class="mob-grid">
     <div class="mob-section-label">📊 Overview</div>
-    <button class="mob-grid-card" onclick="showPage('dashboard');closeMobMenu()"><span class="mob-grid-emoji">📊</span><span class="mob-grid-label">Dashboard</span></button>
-    <button class="mob-grid-card" onclick="showPage('runway');closeMobMenu()"><span class="mob-grid-emoji">🛟</span><span class="mob-grid-label">Runway</span></button>
+    <button class="mob-grid-card" onclick="showPage('dashboard');updateMobTitle('dashboard');closeMobMenu()"><span class="mob-grid-emoji">📊</span><span class="mob-grid-label">Dashboard</span></button>
+    <button class="mob-grid-card" onclick="showPage('runway');updateMobTitle('runway');closeMobMenu()"><span class="mob-grid-emoji">🛟</span><span class="mob-grid-label">Runway</span></button>
 
     <div class="mob-section-label">💵 Track</div>
-    <button class="mob-grid-card" onclick="showPage('income');closeMobMenu()"><span class="mob-grid-emoji">💵</span><span class="mob-grid-label">Income</span></button>
-    <button class="mob-grid-card" onclick="showPage('expenses');closeMobMenu()"><span class="mob-grid-emoji">💸</span><span class="mob-grid-label">Expenses</span></button>
-    <button class="mob-grid-card" onclick="showPage('subscriptions');closeMobMenu()"><span class="mob-grid-emoji">🔄</span><span class="mob-grid-label">Subscriptions</span></button>
-    <button class="mob-grid-card" onclick="showPage('essentials');closeMobMenu()"><span class="mob-grid-emoji">🏡</span><span class="mob-grid-label">Bare Minimum</span></button>
+    <button class="mob-grid-card" onclick="showPage('income');updateMobTitle('income');closeMobMenu()"><span class="mob-grid-emoji">💵</span><span class="mob-grid-label">Income</span></button>
+    <button class="mob-grid-card" onclick="showPage('expenses');updateMobTitle('expenses');closeMobMenu()"><span class="mob-grid-emoji">💸</span><span class="mob-grid-label">Expenses</span></button>
+    <button class="mob-grid-card" onclick="showPage('subscriptions');updateMobTitle('subscriptions');closeMobMenu()"><span class="mob-grid-emoji">🔄</span><span class="mob-grid-label">Subscriptions</span></button>
+    <button class="mob-grid-card" onclick="showPage('essentials');updateMobTitle('essentials');closeMobMenu()"><span class="mob-grid-emoji">🏡</span><span class="mob-grid-label">Bare Minimum</span></button>
 
     <div class="mob-section-label">🎯 Goals</div>
-    <button class="mob-grid-card" onclick="showPage('goals');closeMobMenu()"><span class="mob-grid-emoji">🎯</span><span class="mob-grid-label">Goals</span></button>
-    <button class="mob-grid-card" onclick="showPage('savings');closeMobMenu()"><span class="mob-grid-emoji">🏦</span><span class="mob-grid-label">Savings</span></button>
-    <button class="mob-grid-card" onclick="showPage('milestones');closeMobMenu()"><span class="mob-grid-emoji">🗓️</span><span class="mob-grid-label">Milestones</span></button>
+    <button class="mob-grid-card" onclick="showPage('goals');updateMobTitle('goals');closeMobMenu()"><span class="mob-grid-emoji">🎯</span><span class="mob-grid-label">Goals</span></button>
+    <button class="mob-grid-card" onclick="showPage('savings');updateMobTitle('savings');closeMobMenu()"><span class="mob-grid-emoji">🏦</span><span class="mob-grid-label">Savings</span></button>
+    <button class="mob-grid-card" onclick="showPage('milestones');updateMobTitle('milestones');closeMobMenu()"><span class="mob-grid-emoji">🗓️</span><span class="mob-grid-label">Milestones</span></button>
 
     <div class="mob-section-label">🚀 Build</div>
-    <button class="mob-grid-card" onclick="showPage('hustles');closeMobMenu()"><span class="mob-grid-emoji">🚀</span><span class="mob-grid-label">Hustles</span></button>
-    <button class="mob-grid-card" onclick="showPage('delusion');closeMobMenu()"><span class="mob-grid-emoji">👁️</span><span class="mob-grid-label">Delusionment</span></button>
+    <button class="mob-grid-card" onclick="showPage('hustles');updateMobTitle('hustles');closeMobMenu()"><span class="mob-grid-emoji">🚀</span><span class="mob-grid-label">Hustles</span></button>
+    <button class="mob-grid-card" onclick="showPage('delusion');updateMobTitle('delusion');closeMobMenu()"><span class="mob-grid-emoji">👁️</span><span class="mob-grid-label">Delusionment</span></button>
 
     <div class="mob-section-label">⚙️ Settings</div>
     <button class="mob-grid-card" onclick="openFirebaseSetup();closeMobMenu()"><span class="mob-grid-emoji">☁️</span><span class="mob-grid-label">Cloud Sync</span></button>
@@ -4142,10 +4142,8 @@ function closeMobMenu() {
   document.getElementById('mob-menu').style.display = 'none';
 }
 
-// Update topbar title on page change
-const _origShowPage = showPage;
-function showPage(page) {
-  _origShowPage(page);
+// Update mobile topbar title
+function updateMobTitle(page) {
   const names = {
     dashboard:'📊 Dashboard', income:'💵 Income', expenses:'💸 Expenses',
     subscriptions:'🔄 Subscriptions', goals:'🎯 Goals', essentials:'🏡 Bare Minimum',
@@ -4154,7 +4152,6 @@ function showPage(page) {
   };
   const t = document.getElementById('mob-topbar-title');
   if (t) t.textContent = names[page] || '💰 MONEY OS';
-  document.querySelector('.main')?.scrollTo(0,0);
 }
 </script>
 
