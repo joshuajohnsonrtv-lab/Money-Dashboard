@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>💰 Money OS</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
   :root {
     --bg:       #080a0f;
@@ -779,6 +781,7 @@
     <button class="mob-grid-card" onclick="showPage('delusion');closeMobMenu()"><span class="mob-grid-emoji">👁️</span><span class="mob-grid-label">Delusionment</span></button>
 
     <div class="mob-section-label">⚙️ Settings</div>
+    <button class="mob-grid-card" onclick="openFirebaseSetup();closeMobMenu()"><span class="mob-grid-emoji">☁️</span><span class="mob-grid-label">Cloud Sync</span></button>
     <button class="mob-grid-card" onclick="exportData();closeMobMenu()"><span class="mob-grid-emoji">💾</span><span class="mob-grid-label">Export</span></button>
     <button class="mob-grid-card" onclick="document.getElementById('import-file').click();closeMobMenu()"><span class="mob-grid-emoji">📂</span><span class="mob-grid-label">Import</span></button>
   </div>
@@ -840,7 +843,11 @@
 
   <div class="sidebar-footer">
     <div id="save-status">Not saved yet</div>
-    <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+    <div id="cloud-status" style="font-size:11px;margin-top:4px;cursor:pointer" onclick="openFirebaseSetup()"><span style="color:var(--muted)">○ Cloud sync off</span></div>
+    <button onclick="openFirebaseSetup()" style="display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;background:rgba(245,197,66,0.08);border:1px solid rgba(245,197,66,0.25);color:var(--gold);border-radius:8px;cursor:pointer;font-size:12px;margin-top:8px;margin-bottom:6px">
+      <span>☁️</span><span>Cloud Sync Setup</span>
+    </button>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
       <button class="btn btn-sm btn-ghost" onclick="exportData()" style="flex:1;font-size:11px">Export</button>
       <button class="btn btn-sm btn-ghost" onclick="document.getElementById('import-file').click()" style="flex:1;font-size:11px">Import</button>
     </div>
@@ -1730,6 +1737,7 @@ function saveData(data) {
   localStorage.setItem('money_os_data', JSON.stringify(data));
   localStorage.setItem('money_os_saved', new Date().toISOString());
   updateSaveStatus();
+  pushToFirebase(JSON.parse(JSON.stringify(data)));
 }
 
 function updateSaveStatus() {
@@ -4000,10 +4008,131 @@ function importData(event) {
 }
 
 // ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// FIREBASE CLOUD SYNC
+// ══════════════════════════════════════════════════
+let _fbApp=null, _fbDb=null, _fbEnabled=false, _fbSyncing=false, _fbInitDone=false;
+
+function getFbConfig() { try { return JSON.parse(localStorage.getItem('money_firebase_config')||'null'); } catch(e){return null;} }
+function getFbKey()    { return localStorage.getItem('money_firebase_key')||'default'; }
+function fbRef(key)    { return _fbDb.ref('money/'+getFbKey()+'/'+key); }
+
+function initFirebase() {
+  const config = getFbConfig();
+  if (!config || !config.databaseURL) return;
+  try {
+    if (typeof firebase==='undefined') return;
+    if (!firebase.apps.length) { _fbApp = firebase.initializeApp(config); }
+    else { _fbApp = firebase.apps[0]; }
+    _fbDb = firebase.database();
+    _fbEnabled = true;
+    updateCloudStatus('syncing');
+    syncFromFirebase();
+  } catch(e) { console.warn('Firebase init failed:',e); updateCloudStatus('error'); }
+}
+
+function syncFromFirebase() {
+  if (!_fbEnabled||!_fbDb) return;
+  fbRef('main').once('value').then(function(snap) {
+    const cloud = snap.val();
+    if (cloud) {
+      const localTs = new Date(localStorage.getItem('money_os_saved')||0).getTime();
+      const cloudTs = cloud._savedAt||0;
+      if (!localStorage.getItem('money_os_data') || cloudTs > localTs) {
+        const copy = Object.assign({},cloud); delete copy._savedAt;
+        localStorage.setItem('money_os_data', JSON.stringify(copy));
+        if (cloudTs) localStorage.setItem('money_os_saved', new Date(cloudTs).toISOString());
+        renderDashboard(); updateSaveStatus();
+        if (_fbInitDone) showToast('☁️ Synced from cloud');
+      } else {
+        pushToFirebase(getData());
+      }
+    } else {
+      const local = localStorage.getItem('money_os_data');
+      if (local) { pushToFirebase(JSON.parse(local)); showToast('☁️ Uploading your data to cloud…'); }
+    }
+    _fbInitDone = true;
+    updateCloudStatus('connected');
+  }).catch(function(e) { console.warn('Firebase pull failed:',e); updateCloudStatus('offline'); _fbInitDone=true; });
+
+  fbRef('main').on('value', function(snap) {
+    if (_fbSyncing||!_fbInitDone) return;
+    const cloud = snap.val(); if (!cloud) return;
+    const localTs = new Date(localStorage.getItem('money_os_saved')||0).getTime();
+    const cloudTs = cloud._savedAt||0;
+    if (cloudTs > localTs+2000) {
+      const copy = Object.assign({},cloud); delete copy._savedAt;
+      localStorage.setItem('money_os_data', JSON.stringify(copy));
+      localStorage.setItem('money_os_saved', new Date(cloudTs).toISOString());
+      renderDashboard(); updateSaveStatus();
+      showToast('☁️ Synced from another device');
+    }
+  });
+}
+
+function pushToFirebase(data) {
+  if (!_fbEnabled||!_fbDb) return;
+  _fbSyncing = true;
+  const payload = Object.assign({},data,{_savedAt:Date.now()});
+  fbRef('main').set(payload)
+    .then(function(){ _fbSyncing=false; updateCloudStatus('connected'); })
+    .catch(function(e){ _fbSyncing=false; updateCloudStatus('error'); console.warn(e); });
+}
+
+function updateCloudStatus(status) {
+  const configs = { connected:['☁️ Cloud sync on','var(--green)'], syncing:['☁️ Syncing…','var(--gold)'], offline:['⚠️ Cloud offline','var(--gold)'], error:['❌ Sync error','var(--red)'], off:['○ Cloud sync off','var(--muted)'] };
+  const pair = configs[status]||configs.off;
+  const el = document.getElementById('cloud-status');
+  if (el) el.innerHTML = '<span style="color:'+pair[1]+'">'+pair[0]+'</span>';
+}
+
+function openFirebaseSetup() {
+  const existing = getFbConfig();
+  const ta = document.getElementById('fb-config-input');
+  const ki = document.getElementById('fb-secret-key');
+  if (ta && existing) ta.value = JSON.stringify(existing,null,2);
+  if (ki) ki.value = getFbKey();
+  const db = document.getElementById('fb-disconnect-btn');
+  if (db) db.style.display = _fbEnabled ? 'block' : 'none';
+  openModal('modal-firebase-setup');
+}
+
+function saveFirebaseConfig() {
+  const raw = document.getElementById('fb-config-input').value.trim();
+  const key = document.getElementById('fb-secret-key').value.trim()||'default';
+  if (!raw) { showToast('⚠️ Paste your Firebase config first'); return; }
+  let config;
+  try { config = JSON.parse(raw); } catch(e) {
+    try { const m=raw.match(/firebaseConfig\s*=\s*(\{[\s\S]*?\})\s*;/); if(m) config=(new Function('return '+m[1]))(); } catch(e2){}
+    if (!config) { showToast('❌ Could not read config'); return; }
+  }
+  if (!config.databaseURL) { showToast('⚠️ Missing databaseURL — enable Realtime Database first'); return; }
+  localStorage.setItem('money_firebase_config', JSON.stringify(config));
+  localStorage.setItem('money_firebase_key', key);
+  closeModal('modal-firebase-setup');
+  if (firebase.apps.length) {
+    try { firebase.apps[0].delete().then(function(){ _fbApp=null;_fbDb=null;_fbEnabled=false; initFirebase(); }); }
+    catch(e){ _fbApp=null;_fbDb=null;_fbEnabled=false; initFirebase(); }
+  } else { initFirebase(); }
+  showToast('✅ Connecting to Firebase…');
+}
+
+function disconnectFirebase() {
+  if (!confirm('Disconnect cloud sync? Your local data stays safe.')) return;
+  if (_fbDb) { try { fbRef('main').off(); } catch(e){} }
+  _fbEnabled=false; _fbDb=null; _fbApp=null; _fbInitDone=false;
+  localStorage.removeItem('money_firebase_config');
+  updateCloudStatus('off');
+  closeModal('modal-firebase-setup');
+  showToast('🔌 Cloud sync disconnected');
+}
+
+// ══════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════
 updateSaveStatus();
 renderDashboard();
+(function(){ if(getFbConfig()) initFirebase(); else updateCloudStatus('off'); })();
 
 // ── MOBILE MENU ──
 function openMobMenu() {
@@ -4090,5 +4219,33 @@ function showPage(page) {
 ">
   <div class="wheel-outer" id="income-wheel-outer" style="pointer-events:auto"></div>
 </div>
+
+<!-- ══ FIREBASE SETUP MODAL ══ -->
+<div class="modal-overlay" id="modal-firebase-setup" onclick="if(event.target===this)closeModal('modal-firebase-setup')">
+  <div class="modal" style="max-width:560px;width:100%;max-height:92vh;overflow-y:auto">
+    <div class="modal-header">
+      <h3 class="modal-title">☁️ Cloud Sync Setup</h3>
+      <button class="modal-close" onclick="closeModal('modal-firebase-setup')">✕</button>
+    </div>
+    <div style="background:rgba(245,197,66,0.07);border:1px solid rgba(245,197,66,0.2);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;line-height:1.6;color:var(--muted2)">
+      Uses your existing <strong style="color:var(--gold)">Firebase Realtime Database</strong> — the same one you set up for your Wellness dashboard. Just paste the same config and use the same secret key.
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;display:block;margin-bottom:6px">Firebase Config</label>
+      <textarea id="fb-config-input" placeholder='Paste your firebaseConfig JSON here...' style="width:100%;height:140px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px;font-size:12px;font-family:monospace;resize:vertical;box-sizing:border-box;line-height:1.5"></textarea>
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;display:block;margin-bottom:6px">Secret Key</label>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Use the <strong>same secret key</strong> as your wellness dashboard</div>
+      <input id="fb-secret-key" type="text" placeholder="your-secret-key" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:13px;box-sizing:border-box" />
+    </div>
+    <div style="display:flex;gap:10px;flex-direction:column">
+      <button onclick="saveFirebaseConfig()" style="background:var(--gold);color:#000;border:none;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;width:100%">☁️ Connect &amp; Sync</button>
+      <button onclick="closeModal('modal-firebase-setup')" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:13px;color:var(--muted);cursor:pointer;width:100%">Cancel</button>
+      <button id="fb-disconnect-btn" onclick="disconnectFirebase()" style="display:none;background:transparent;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 20px;font-size:13px;color:var(--red);cursor:pointer;width:100%">🔌 Disconnect</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
