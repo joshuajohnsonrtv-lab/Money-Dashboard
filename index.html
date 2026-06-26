@@ -735,6 +735,71 @@
   .mob-grid-emoji { font-size:34px; line-height:1; }
   .mob-grid-label { font-size:12px; font-weight:600; text-align:center; }
 
+  /* ── VISUAL LADDER CARDS ── */
+  .vis-card {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    height: 260px;
+    cursor: default;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .vis-card.vis-lit { opacity: 1; transform: translateY(0); }
+  .vis-card-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    position: absolute; inset: 0;
+    transition: transform 8s ease;
+  }
+  .vis-card:hover .vis-card-img { transform: scale(1.04); }
+  /* gradient overlay — dark at bottom, tinted at top */
+  .vis-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.18) 0%,
+      rgba(0,0,0,0.55) 55%,
+      rgba(0,0,0,0.88) 100%
+    );
+  }
+  /* colour tint strip at very top */
+  .vis-card-tint {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .vis-card-body {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 22px;
+  }
+  .vis-card-range {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; opacity: 0.8; margin-bottom: 4px;
+  }
+  .vis-card-name {
+    font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+    line-height: 1.15; margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .vis-card-tagline {
+    font-size: 12px; font-weight: 600; opacity: 0.85;
+    margin-bottom: 10px; line-height: 1.45;
+  }
+  .vis-card-desc {
+    font-size: 12.5px; color: rgba(255,255,255,0.75);
+    line-height: 1.6; max-width: 560px;
+  }
+  /* "YOU ARE HERE" badge on vis card */
+  .vis-card-here {
+    position: absolute; top: 14px; right: 14px;
+    font-size: 10px; font-weight: 800; padding: 4px 12px;
+    border-radius: 20px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #000;
+  }
+
   /* ══ THE LADDER ══ */
   .ladder-intro {
     text-align:center; padding:40px 20px 20px;
@@ -1413,19 +1478,23 @@
       </div>
     </div>
 
-    <!-- Mode toggle -->
-    <div style="display:flex;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:5px;margin-bottom:20px;max-width:480px">
+    <!-- Mode toggle — 3 tabs -->
+    <div style="display:flex;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:5px;margin-bottom:20px">
       <button id="ladder-toggle-employee" onclick="setLadderMode('employee')"
-        style="flex:1;padding:11px 16px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all 0.2s;background:var(--gold);color:#000;letter-spacing:0.01em">
-        💼 Employee Path
+        style="flex:1;padding:10px 8px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s;background:var(--gold);color:#000">
+        💼 Employee
       </button>
       <button id="ladder-toggle-hustle" onclick="setLadderMode('hustle')"
-        style="flex:1;padding:11px 16px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all 0.2s;background:transparent;color:var(--muted);letter-spacing:0.01em">
-        🚀 Hustler Path
+        style="flex:1;padding:10px 8px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s;background:transparent;color:var(--muted)">
+        🚀 Hustler
+      </button>
+      <button id="ladder-toggle-visual" onclick="setLadderMode('visual')"
+        style="flex:1;padding:10px 8px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s;background:transparent;color:var(--muted)">
+        🖼️ Visual
       </button>
     </div>
 
-    <!-- Intro block (swaps per mode) -->
+    <!-- Intro blocks -->
     <div id="ladder-intro-employee" class="ladder-intro">
       <h3>Every level is earned.<br>Most people never move.</h3>
       <p>This isn't about money. It's about the life that money buys — or doesn't. Read this slowly. Find where you are. Sit with it. Then decide whether you're good with that.</p>
@@ -1435,8 +1504,27 @@
       <p>This is the route for people who refuse to sell 40 years of their life for a salary, a pension, and a gold watch. It's not easier. It's harder. Most people fail. The ones who don't build things that last beyond them. Ceiling: <strong style="color:#a855f7">£100,000,000/year.</strong></p>
     </div>
 
+    <!-- Income summary (text modes only) -->
     <div id="ladder-income-summary" style="background:rgba(245,197,66,0.06);border:1px solid rgba(245,197,66,0.2);border-radius:14px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap"></div>
+
+    <!-- Text ladder spine -->
     <div class="ladder-spine" id="ladder-cards-container"></div>
+
+    <!-- Visual gallery (hidden by default) -->
+    <div id="ladder-visual-container" style="display:none">
+      <!-- sub-toggle for employee vs hustler in visual mode -->
+      <div style="display:flex;gap:8px;margin-bottom:18px">
+        <button id="vis-toggle-employee" onclick="setVisualPath('employee')"
+          style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--gold);cursor:pointer;font-size:12px;font-weight:700;background:var(--gold);color:#000;transition:all 0.2s">
+          💼 Employee Path
+        </button>
+        <button id="vis-toggle-hustle" onclick="setVisualPath('hustle')"
+          style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:700;background:transparent;color:var(--muted);transition:all 0.2s">
+          🚀 Hustler Path
+        </button>
+      </div>
+      <div id="ladder-visual-cards"></div>
+    </div>
   </div>
 
 </main>
@@ -4651,28 +4739,205 @@ const LADDER_LEVELS_HUSTLE = [
   }
 ];
 
+// ── Visual card data — Unsplash photo IDs + short descriptions ──
+const VISUAL_EMPLOYEE = [
+  {
+    range:'£0 – £12,000', name:'Survival Mode', color:'#ef4444',
+    img:'https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=900&q=80',
+    tagline:'One bill away from nothing.',
+    desc:'Your bank balance is a daily source of dread. You\'re not broke — you\'re one unexpected expense away from it. Nothing is being built. Time passes and the number doesn\'t change.'
+  },
+  {
+    range:'£12,000 – £22,000', name:'The Grind', color:'#f97316',
+    img:'https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?auto=format&fit=crop&w=900&q=80',
+    tagline:'You\'re working. But working for what?',
+    desc:'Warehouse floors, retail counters, call centres. You show up, clock the hours, come home tired. You tell yourself it\'s temporary. For most people, it isn\'t.'
+  },
+  {
+    range:'£22,000 – £35,000', name:'Average Britain', color:'#f59e0b',
+    img:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=80',
+    tagline:'You can breathe. Not much more than that.',
+    desc:'A proper job. A social life. Occasional holidays. You\'re stable, responsible — and quietly frustrated that hard work doesn\'t seem to move the needle the way you were told it would.'
+  },
+  {
+    range:'£35,000 – £55,000', name:'Starting to See It', color:'#eab308',
+    img:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=900&q=80',
+    tagline:'The gap between getting by and actually living.',
+    desc:'Your own place. Real savings. Career momentum. Financial stress drops for the first time. Options are starting to appear — and for the first time, you can take them.'
+  },
+  {
+    range:'£55,000 – £85,000', name:'Top 10%', color:'#a3e635',
+    img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80',
+    tagline:'Most people never get here. Act like it.',
+    desc:'You\'ve crossed a line most people don\'t. Good income, real investments, proper savings. But income without assets is just a nicer hamster wheel — the clock is still being sold.'
+  },
+  {
+    range:'£85,000 – £150,000', name:'High Earner', color:'#22d3ee',
+    img:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
+    tagline:'More money than most. Less free than you think.',
+    desc:'Premium everything. Real financial power. But at £100k, HMRC takes up to 60p in the pound. And you\'re still trading time for money — just at a much higher price per hour.'
+  },
+  {
+    range:'£150,000+', name:'The Game Changed', color:'#c084fc',
+    img:'https://images.unsplash.com/photo-1559181567-c3190babb1e3?auto=format&fit=crop&w=900&q=80',
+    tagline:'Money works for you — or it should.',
+    desc:'True optionality. The question stopped being "can I afford it." The question is whether it\'s worth your time. Now build something that earns without you — or you\'re just an expensive employee.'
+  }
+];
+
+const VISUAL_HUSTLE = [
+  {
+    range:'£0 – £10,000', name:'Before It\'s Real', color:'#64748b',
+    img:'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=900&q=80',
+    tagline:'You\'ve decided to play a different game. Prove it.',
+    desc:'Late nights. Failed ideas. 200 YouTube subscribers. The gap between knowing the 9-to-5 isn\'t for you and doing something about it. Most people live here forever.'
+  },
+  {
+    range:'£10,000 – £30,000', name:'First Real Money', color:'#f97316',
+    img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=80',
+    tagline:'Something worked. Figure out why — then do it again.',
+    desc:'First client. First shipment. First sale that wasn\'t to your mum. Proof that you can generate income outside of a paycheck. This moment rewires what you believe is possible.'
+  },
+  {
+    range:'£30,000 – £80,000', name:'Escaped the System', color:'#f59e0b',
+    img:'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&w=900&q=80',
+    tagline:'You left. Most people never do.',
+    desc:'The business pays the bills. You might have kept the job as runway — smart. Now you\'ve broken the psychological dependency on employment. That line is rarer than any income figure.'
+  },
+  {
+    range:'£80,000 – £250,000', name:'Operator', color:'#84cc16',
+    img:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80',
+    tagline:'You\'re running a real business. Now run it like one.',
+    desc:'Team. Systems. Recurring revenue. A name in your niche. Revenue comes in on days you don\'t work. You\'re harder than you\'ve ever worked — and it\'s the first time it\'s actually for you.'
+  },
+  {
+    range:'£250,000 – £1,000,000', name:'Serious Money', color:'#22c55e',
+    img:'https://images.unsplash.com/photo-1444653614773-995cb1ef9efa?auto=format&fit=crop&w=900&q=80',
+    tagline:'The gap between this and the level below is mostly mindset.',
+    desc:'Multiple income streams. Money generating money. Net worth growing faster than income. You\'ve crossed the point where compounding becomes something you can actually see in your account.'
+  },
+  {
+    range:'£1,000,000 – £5,000,000', name:'Builder', color:'#14b8a6',
+    img:'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=900&q=80',
+    tagline:'Seven figures. You made it real.',
+    desc:'You operate through leverage now — other people\'s time, your capital, your reputation. Monthly investment returns exceed most people\'s annual salary. The system works for you, not the other way round.'
+  },
+  {
+    range:'£5,000,000 – £20,000,000', name:'Portfolio Operator', color:'#3b82f6',
+    img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=900&q=80',
+    tagline:'You\'re a capital allocator now, not an entrepreneur.',
+    desc:'A portfolio. Equity in multiple businesses. Your job is deciding where capital and attention generate the highest return. A year of doing nothing still grows your net worth by millions.'
+  },
+  {
+    range:'£20,000,000 – £100,000,000', name:'The Elite Creator', color:'#a855f7',
+    img:'https://images.unsplash.com/photo-1540541338537-42b640bd8e3a?auto=format&fit=crop&w=900&q=80',
+    tagline:'You\'re not playing the game. You helped build the board.',
+    desc:'Your decisions affect hundreds of people. The things you fund and build carry real weight. Legacy replaces income as the question. Most people here say the journey was always the point.'
+  }
+];
+
 let _ladderMode = 'employee';
+let _visPath    = 'employee';
 let _ladderObserver = null;
+let _visObserver    = null;
 
 function setLadderMode(mode) {
   _ladderMode = mode;
-  const empBtn   = document.getElementById('ladder-toggle-employee');
-  const husBtn   = document.getElementById('ladder-toggle-hustle');
+
+  const empBtn  = document.getElementById('ladder-toggle-employee');
+  const husBtn  = document.getElementById('ladder-toggle-hustle');
+  const visBtn  = document.getElementById('ladder-toggle-visual');
   const empIntro = document.getElementById('ladder-intro-employee');
   const husIntro = document.getElementById('ladder-intro-hustle');
+  const spineCon = document.getElementById('ladder-cards-container');
+  const visCon   = document.getElementById('ladder-visual-container');
+  const summary  = document.getElementById('ladder-income-summary');
+
+  // Reset all buttons
+  [empBtn, husBtn, visBtn].forEach(b => { b.style.background = 'transparent'; b.style.color = 'var(--muted)'; });
 
   if (mode === 'employee') {
     empBtn.style.background = 'var(--gold)';  empBtn.style.color = '#000';
-    husBtn.style.background = 'transparent';  husBtn.style.color = 'var(--muted)';
     if (empIntro) empIntro.style.display = '';
     if (husIntro) husIntro.style.display = 'none';
-  } else {
-    husBtn.style.background = '#a855f7';      husBtn.style.color = '#fff';
-    empBtn.style.background = 'transparent';  empBtn.style.color = 'var(--muted)';
+    if (spineCon) spineCon.style.display = '';
+    if (visCon)   visCon.style.display   = 'none';
+    if (summary)  summary.style.display  = 'flex';
+  } else if (mode === 'hustle') {
+    husBtn.style.background = '#a855f7';  husBtn.style.color = '#fff';
     if (husIntro) husIntro.style.display = '';
     if (empIntro) empIntro.style.display = 'none';
+    if (spineCon) spineCon.style.display = '';
+    if (visCon)   visCon.style.display   = 'none';
+    if (summary)  summary.style.display  = 'flex';
+  } else {
+    // visual mode
+    visBtn.style.background = '#06b6d4'; visBtn.style.color = '#000';
+    if (empIntro) empIntro.style.display = 'none';
+    if (husIntro) husIntro.style.display = 'none';
+    if (spineCon) spineCon.style.display = 'none';
+    if (visCon)   visCon.style.display   = '';
+    if (summary)  summary.style.display  = 'none';
+    renderVisualLadder(_visPath);
+    return; // skip renderLadder
   }
   renderLadder();
+}
+
+function setVisualPath(path) {
+  _visPath = path;
+  const empBtn = document.getElementById('vis-toggle-employee');
+  const husBtn = document.getElementById('vis-toggle-hustle');
+  if (path === 'employee') {
+    empBtn.style.background = 'var(--gold)';  empBtn.style.color = '#000'; empBtn.style.borderColor = 'var(--gold)';
+    husBtn.style.background = 'transparent';  husBtn.style.color = 'var(--muted)'; husBtn.style.borderColor = 'var(--border)';
+  } else {
+    husBtn.style.background = '#a855f7';  husBtn.style.color = '#fff'; husBtn.style.borderColor = '#a855f7';
+    empBtn.style.background = 'transparent'; empBtn.style.color = 'var(--muted)'; empBtn.style.borderColor = 'var(--border)';
+  }
+  renderVisualLadder(path);
+}
+
+function renderVisualLadder(path) {
+  const cards   = path === 'hustle' ? VISUAL_HUSTLE : VISUAL_EMPLOYEE;
+  const levels  = path === 'hustle' ? LADDER_LEVELS_HUSTLE : LADDER_LEVELS;
+  const data    = getData();
+  const entries = data.income?.entries || [];
+  const now     = new Date();
+  const ago     = new Date(now); ago.setFullYear(now.getFullYear() - 1);
+  let annual    = 0;
+  entries.forEach(e => { if (new Date(e.date) >= ago) annual += parseFloat(e.amount)||0; });
+  const currentIdx = annual > 0
+    ? levels.findIndex((l,i) => annual >= l.minAnnual && annual < (levels[i+1]?.minAnnual || Infinity))
+    : -1;
+
+  const container = document.getElementById('ladder-visual-cards');
+  if (!container) return;
+
+  container.innerHTML = cards.map((c, i) => {
+    const isCurrent = i === currentIdx;
+    return `
+    <div class="vis-card" id="vis-card-${i}" style="--vc:${c.color}">
+      <img class="vis-card-img" src="${c.img}" alt="${c.name}"
+           onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#1a1a2e,${c.color}33)'">
+      <div class="vis-card-overlay"></div>
+      <div class="vis-card-tint" style="background:${c.color}"></div>
+      ${isCurrent ? `<div class="vis-card-here" style="background:${c.color}">YOU ARE HERE</div>` : ''}
+      <div class="vis-card-body" style="color:#fff">
+        <div class="vis-card-range" style="color:${c.color}">${c.range}</div>
+        <div class="vis-card-name">${c.name}</div>
+        <div class="vis-card-tagline" style="color:${c.color}">${c.tagline}</div>
+        <div class="vis-card-desc">${c.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Observe for scroll-in animation
+  if (_visObserver) _visObserver.disconnect();
+  _visObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis-lit'); });
+  }, { threshold: 0.08, rootMargin:'0px 0px -30px 0px' });
+  document.querySelectorAll('.vis-card').forEach(c => _visObserver.observe(c));
 }
 
 function renderLadder() {
