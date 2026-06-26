@@ -734,6 +734,161 @@
   .mob-grid-card:active { border-color:var(--gold); background:var(--card); }
   .mob-grid-emoji { font-size:34px; line-height:1; }
   .mob-grid-label { font-size:12px; font-weight:600; text-align:center; }
+
+  /* ══ THE LADDER ══ */
+  .ladder-intro {
+    text-align:center; padding:40px 20px 20px;
+    background:linear-gradient(180deg,rgba(245,197,66,0.04) 0%,transparent 100%);
+    border-radius:var(--radius); margin-bottom:8px;
+  }
+  .ladder-intro h3 { font-size:22px; font-weight:800; letter-spacing:-0.5px; margin-bottom:10px; }
+  .ladder-intro p { font-size:13.5px; color:var(--muted2); line-height:1.7; max-width:560px; margin:0 auto; }
+
+  /* The connecting spine */
+  .ladder-spine {
+    position:relative;
+    padding-left:28px;
+  }
+  .ladder-spine::before {
+    content:'';
+    position:absolute;
+    left:10px; top:0; bottom:0;
+    width:2px;
+    background:linear-gradient(180deg,#1f1f2e 0%,rgba(245,197,66,0.15) 20%,rgba(245,197,66,0.4) 60%,rgba(255,255,255,0.6) 100%);
+  }
+
+  /* Individual level card */
+  .ladder-card {
+    position:relative;
+    margin-bottom:20px;
+    border-radius:18px;
+    border:1px solid var(--border);
+    background:var(--card);
+    overflow:hidden;
+    /* scroll-in animation — starts invisible */
+    opacity:0;
+    transform:translateY(36px);
+    transition:opacity 0.6s ease, transform 0.6s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+  }
+  .ladder-card.ladder-lit {
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  /* Spine dot */
+  .ladder-dot {
+    position:absolute;
+    left:-35px; top:28px;
+    width:14px; height:14px;
+    border-radius:50%;
+    border:2px solid var(--border);
+    background:var(--card);
+    z-index:2;
+    transition:all 0.5s ease;
+  }
+  .ladder-card.ladder-lit .ladder-dot {
+    border-color:var(--lc, var(--gold));
+    background:var(--lc, var(--gold));
+    box-shadow:0 0 10px var(--lc, var(--gold));
+  }
+
+  /* Colour left stripe */
+  .ladder-stripe {
+    position:absolute; left:0; top:0; bottom:0; width:4px;
+    background:var(--lc, var(--gold));
+    opacity:0;
+    transition:opacity 0.6s ease;
+  }
+  .ladder-card.ladder-lit .ladder-stripe { opacity:1; }
+
+  /* Card header */
+  .ladder-header {
+    padding:22px 24px 16px 30px;
+    display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap;
+  }
+  .ladder-badge {
+    display:inline-flex; flex-direction:column; align-items:center;
+    background:rgba(0,0,0,0.3); border:1px solid var(--lc, var(--gold));
+    border-radius:12px; padding:10px 16px; flex-shrink:0;
+    opacity:0; transform:scale(0.85); transition:opacity 0.5s 0.2s ease, transform 0.5s 0.2s ease;
+  }
+  .ladder-card.ladder-lit .ladder-badge { opacity:1; transform:scale(1); }
+  .ladder-badge-range { font-size:17px; font-weight:800; color:var(--lc, var(--gold)); letter-spacing:-0.5px; }
+  .ladder-badge-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:2px; }
+
+  .ladder-title-block { flex:1; min-width:200px; }
+  .ladder-level-name { font-size:19px; font-weight:800; margin-bottom:4px; letter-spacing:-0.3px; }
+  .ladder-tagline { font-size:13px; color:var(--lc, var(--gold)); font-weight:600; opacity:0.9; }
+
+  /* Character block */
+  .ladder-character {
+    padding:0 24px 16px 30px;
+    font-size:13px; color:var(--muted2); line-height:1.7;
+    font-style:italic;
+    border-bottom:1px solid var(--border);
+  }
+  .ladder-character strong { color:var(--text); font-style:normal; }
+
+  /* Body */
+  .ladder-body { padding:18px 24px 18px 30px; display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:640px) { .ladder-body { grid-template-columns:1fr; } }
+
+  .ladder-col-title { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
+  .ladder-good .ladder-col-title { color:#22c55e; }
+  .ladder-ugly .ladder-col-title { color:#ef4444; }
+
+  .ladder-point {
+    display:flex; gap:8px; align-items:flex-start;
+    font-size:12.5px; color:var(--muted2); line-height:1.55; margin-bottom:8px;
+  }
+  .ladder-point-dot { flex-shrink:0; margin-top:4px; width:6px; height:6px; border-radius:50%; }
+  .ladder-good .ladder-point-dot { background:#22c55e; }
+  .ladder-ugly .ladder-point-dot { background:#ef4444; }
+
+  /* Reality stat footer */
+  .ladder-stat {
+    padding:14px 24px 14px 30px;
+    background:rgba(0,0,0,0.25);
+    border-top:1px solid var(--border);
+    font-size:12px; color:var(--muted2); line-height:1.55;
+    display:flex; align-items:center; gap:10px;
+  }
+  .ladder-stat-icon { font-size:18px; flex-shrink:0; }
+
+  /* Current level highlight */
+  .ladder-card.ladder-current {
+    border-color:var(--lc, var(--gold)) !important;
+    box-shadow:0 0 30px -8px var(--lc, var(--gold));
+  }
+  .ladder-current-badge {
+    display:none; position:absolute; top:14px; right:14px;
+    background:var(--lc, var(--gold)); color:#000;
+    font-size:10px; font-weight:800; padding:3px 10px; border-radius:20px;
+    letter-spacing:0.05em; text-transform:uppercase;
+  }
+  .ladder-card.ladder-current .ladder-current-badge { display:block; }
+
+  /* "You are here" glow pulse on current */
+  @keyframes ladder-pulse {
+    0%,100% { box-shadow:0 0 20px -8px var(--lc, var(--gold)); }
+    50%      { box-shadow:0 0 44px -4px var(--lc, var(--gold)); }
+  }
+  .ladder-card.ladder-current.ladder-lit {
+    animation:ladder-pulse 2.5s ease-in-out infinite;
+  }
+
+  /* Progress to next level */
+  .ladder-progress-bar {
+    height:4px; background:rgba(255,255,255,0.06); border-radius:4px; margin:12px 0 2px;
+    overflow:hidden;
+  }
+  .ladder-progress-fill {
+    height:100%; border-radius:4px;
+    background:linear-gradient(90deg, var(--lc, var(--gold)), #fff);
+    transition:width 1.2s 0.4s ease;
+    width:0%;
+  }
+  .ladder-card.ladder-lit .ladder-progress-fill { width:var(--progress, 0%); }
 </style>
 </head>
 <body>
@@ -779,6 +934,7 @@
     <div class="mob-section-label">🚀 Build</div>
     <button class="mob-grid-card" onclick="showPage('hustles');updateMobTitle('hustles');closeMobMenu()"><span class="mob-grid-emoji">🚀</span><span class="mob-grid-label">Hustles</span></button>
     <button class="mob-grid-card" onclick="showPage('delusion');updateMobTitle('delusion');closeMobMenu()"><span class="mob-grid-emoji">👁️</span><span class="mob-grid-label">Delusionment</span></button>
+    <button class="mob-grid-card" onclick="showPage('ladder');updateMobTitle('ladder');closeMobMenu()"><span class="mob-grid-emoji">📈</span><span class="mob-grid-label">The Ladder</span></button>
 
     <div class="mob-section-label">⚙️ Settings</div>
     <button class="mob-grid-card" onclick="openFirebaseSetup();closeMobMenu()"><span class="mob-grid-emoji">☁️</span><span class="mob-grid-label">Cloud Sync</span></button>
@@ -837,6 +993,9 @@
   </div>
 
   <div class="nav-section">Mindset</div>
+  <div class="nav-item" onclick="showPage('ladder')" id="nav-ladder">
+    <span style="font-size:16px;width:20px;text-align:center">📈</span><span>The Ladder</span>
+  </div>
   <div class="nav-item" onclick="showPage('delusion')" id="nav-delusion">
     <span class="icon">👁️</span><span>Pure Delusionment</span>
   </div>
@@ -1805,6 +1964,7 @@ function renderPage(page) {
     milestones:    renderMilestones,
     hustles:       renderHustles,
     delusion:      renderDelusion,
+    ladder:        renderLadder,
   };
   if (fns[page]) fns[page]();
 }
@@ -4143,12 +4303,300 @@ function closeMobMenu() {
 }
 
 // Update mobile topbar title
+// ══════════════════════════════════════════════════
+// THE LADDER
+// ══════════════════════════════════════════════════
+
+const LADDER_LEVELS = [
+  {
+    range: '£0 – £12,000',
+    name: 'Survival Mode',
+    tagline: '"Month to month. No safety net. No plan."',
+    color: '#ef4444',
+    minAnnual: 0,
+    maxAnnual: 12000,
+    character: `You're 18–24. Part-time, on Universal Credit, or just drifting between things. You tell people you're "figuring it out." In reality, you're just getting through the week. The phrase <strong>"I'll sort it next month"</strong> is your entire financial philosophy.`,
+    good: [
+      'Zero responsibilities beyond yourself — total freedom on paper.',
+      'Every small win feels significant. A full tank of petrol feels like a victory.',
+      'You understand what it means to go without. Most people never learn that.'
+    ],
+    ugly: [
+      'One unexpected bill — a broken phone, a dentist visit, a parking fine — wipes you out completely.',
+      "You're one bad month from debt spiralling. There is no cushion, no safety net, no plan B.",
+      'Time passes and nothing changes unless you do something drastic about it. Most people don\'t.'
+    ],
+    stat: '💳 Average savings at this level: £0. Without a deliberate change, most people stay here or nearby for 3–5 years.'
+  },
+  {
+    range: '£12,000 – £22,000',
+    name: 'The Grind',
+    tagline: '"You\'re working. But working for what, exactly?"',
+    color: '#f97316',
+    minAnnual: 12000,
+    maxAnnual: 22000,
+    character: `You've got a job — warehouse, retail, call centre, hospitality, entry-level office. You show up, clock the hours, come home tired. You tell yourself it's temporary. <strong>For most people at this level, it isn't.</strong> You scroll through Instagram at people your age doing things that feel impossible on your wage. Sometimes you wonder if you're doing something wrong.`,
+    good: [
+      'You\'re stable — rent covered, food on the table. You know what the ground looks like and that\'s a real education.',
+      'You understand the value of money in a way people who\'ve always had it never will.',
+      'There\'s a ceiling here, but there\'s also a real floor. You\'re not in freefall.'
+    ],
+    ugly: [
+      'After rent, food, and travel, there\'s almost nothing. Shared houses with people you didn\'t choose. No savings.',
+      'Promotions in low-wage sectors often cap you at £25k. Without a deliberate escape, this becomes your ceiling.',
+      'Lifestyle improvements feel impossible. A night out, a new pair of trainers, a weekend away — all require weeks of thought.'
+    ],
+    stat: '📊 UK Living Wage (2024): £12.60/hr = £23,814/yr full-time. You\'re in or just above survival range. The margin is thin.'
+  },
+  {
+    range: '£22,000 – £35,000',
+    name: 'Average Britain',
+    tagline: '"You can breathe. Not much more than that."',
+    color: '#f59e0b',
+    minAnnual: 22000,
+    maxAnnual: 35000,
+    character: `You've got a proper job. Office work, teaching assistant, junior nurse, tradesperson starting out, grad scheme. You're responsible, showing up, paying your way. <strong>The UK median salary is £34,963 (2024). You are average.</strong> And being average in modern Britain is not comfortable — it just looks that way from the outside.`,
+    good: [
+      'You can handle most unexpected costs without a crisis. A £500 car bill isn\'t the end of the world.',
+      'A holiday once a year is realistic. A social life is possible. You can be generous occasionally.',
+      'You\'re building a CV, skills, options. This isn\'t the destination, it\'s a platform.'
+    ],
+    ugly: [
+      'You\'re working 40 hours a week and mostly treading water. Saving £200–400/month when disciplined — real wealth feels far.',
+      'London is either a financial death sentence or a sacrifice you make for career ambitions.',
+      'Buying property alone in most of the UK requires either a partner\'s income, a parental gift, or relocating somewhere you don\'t want to live.'
+    ],
+    stat: '💰 After tax + NI: ~£23,700 net = £1,975/month. After avg rent (£900 outside London): £1,075 for everything else. Every month.'
+  },
+  {
+    range: '£35,000 – £55,000',
+    name: 'Starting to See It',
+    tagline: '"The gap between getting by and actually living."',
+    color: '#eab308',
+    minAnnual: 35000,
+    maxAnnual: 55000,
+    character: `You've made something of yourself. Senior-ish role, skilled tradesperson, decent freelancer, young professional a few years in. People around you say you're "doing well." <strong>They're right, and it still doesn't feel like enough.</strong> You understand what money does when you have slightly more of it — and you want more of that feeling.`,
+    good: [
+      'Your own flat in most UK cities is realistic. You can eat out without doing mental maths each time.',
+      'Savings start to compound. You\'ve opened a Stocks & Shares ISA. Investments are happening.',
+      'Financial stress drops meaningfully. You can take a career risk, leave a bad job, say no to things you don\'t want.'
+    ],
+    ugly: [
+      'Lifestyle inflation is a constant trap. The more you earn, the more silently your spending rises to match.',
+      'London property ownership alone still requires years of sacrifice or a very specific plan.',
+      'A single bad year — job loss, health crisis, a breakup — is still a genuine shock. The buffer exists but it\'s not deep.'
+    ],
+    stat: '📈 First level where maxing your £20k ISA allowance each year becomes realistically achievable. If you\'re here and not doing it, start.'
+  },
+  {
+    range: '£55,000 – £85,000',
+    name: 'Top 10%',
+    tagline: '"Most people never get here. You need to act like it."',
+    color: '#a3e635',
+    minAnnual: 55000,
+    maxAnnual: 85000,
+    character: `You're in the top 10% of UK earners. Engineer, consultant, senior manager, niche specialist, successful self-employed. You got here through a combination of talent, time, and not settling for what most people accept. <strong>You\'re starting to think about wealth, not just income.</strong> The two are not the same thing.`,
+    good: [
+      'True financial options are appearing. You can fund proper investments, build pension, think about property seriously.',
+      'You can take career risks without panic. Quit a bad boss, try something new, start something on the side.',
+      'The way you move through the world has genuinely changed — you can afford quality, experiences, generosity.'
+    ],
+    ugly: [
+      'Lifestyle creep at this level is vicious and invisible. Many people earning £60–80k feel no richer than they did at £35k.',
+      'Status spending — car, holidays, watches, dining — traps intelligent people in a high-income, low-wealth cycle.',
+      'You can still look busy and successful while building nothing. Income without assets is just a nicer hamster wheel.'
+    ],
+    stat: '🏦 Top 10% threshold: ~£52,000/yr. You\'re past it. But income isn\'t wealth — without investing consistently, you\'re just an expensive employee.'
+  },
+  {
+    range: '£85,000 – £150,000',
+    name: 'High Earner',
+    tagline: '"More money than most. Less freedom than you think."',
+    color: '#22d3ee',
+    minAnnual: 85000,
+    maxAnnual: 150000,
+    character: `Director, senior finance, tech lead, specialist consultant, early-stage entrepreneur. People assume you\'re sorted. <strong>You probably aren\'t as sorted as they think.</strong> You look rich. You might not be. Wealth is net worth, not gross income — and the UK tax system at this level is specifically designed to punish you for earning well without planning around it.`,
+    good: [
+      'Genuine, meaningful financial options. Property portfolios, business ownership, early retirement modelling — all in reach.',
+      'You can change your kids\' starting point entirely. The compounding of capital at this level is real.',
+      'You can absorb almost any single financial shock without crisis. Emergency fund is real, investments are working.'
+    ],
+    ugly: [
+      '£100k is a specific UK tax trap — you lose your personal allowance gradually, pushing your effective marginal rate to 60%. It\'s brutal.',
+      'Lifestyle lock-in is real. The mortgage is bigger, the car is nicer, the expectations are higher. Stopping feels impossible.',
+      'The higher the income, the more expensive the consequences of a divorce, bad business decision, or health event.'
+    ],
+    stat: '⚠️ At exactly £100k, effective marginal rate hits up to 60% (personal allowance taper). Salary sacrifice into pension is essential at this level or you\'re giving HMRC your money.'
+  },
+  {
+    range: '£150,000+',
+    name: 'The Game Changed',
+    tagline: '"You\'re not working for money. Money works for you — or it should."',
+    color: '#c084fc',
+    minAnnual: 150000,
+    maxAnnual: Infinity,
+    character: `Business owner, senior executive, high-value niche operator — law, medicine, elite finance, entertainment. Your decisions are different at this level. Your time is worth more than most people\'s salary. <strong>The question stopped being "can I afford it" a while ago.</strong> The question is whether it\'s worth your attention.`,
+    good: [
+      'True optionality. You can stop working if you\'ve been smart, help other people\'s ideas get built, fund things that matter to you.',
+      'Your money builds more money while you sleep. The compounding at this level, done right, is generational.',
+      'Freedom from financial anxiety so complete that you forget it was ever there. That changes your personality.'
+    ],
+    ugly: [
+      'You either worked 80-hour weeks for years to get here, or built something that required sacrificing things that mattered. There was a cost.',
+      'Loneliness is common at the top. Trust becomes complicated — people want access to you, not you.',
+      'Not everyone who earns £150k+ builds wealth. Plenty spend it all and end up on a treadmill with a nicer view, more stress, and higher stakes.'
+    ],
+    stat: '🚀 £150k invested annually for 20 years at 8% average return: over £7.3M. The question isn\'t whether you can get there — it\'s whether you\'re actually doing it.'
+  }
+];
+
+let _ladderObserver = null;
+
+function renderLadder() {
+  const data = getData();
+
+  // ── Estimate annual income from last 12 months of entries ──
+  const entries = data.income?.entries || [];
+  const now = new Date();
+  const twelveMonthsAgo = new Date(now);
+  twelveMonthsAgo.setFullYear(now.getFullYear() - 1);
+
+  let annualTotal = 0;
+  let hasEntries = false;
+  entries.forEach(e => {
+    if (!e.date || !e.amount) return;
+    const d = new Date(e.date);
+    if (d >= twelveMonthsAgo) {
+      annualTotal += parseFloat(e.amount) || 0;
+      hasEntries = true;
+    }
+  });
+
+  // If no 12-month data, try to estimate from whatever exists (last 3 months × 4)
+  if (!hasEntries && entries.length) {
+    const threeMonthsAgo = new Date(now);
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+    let q = 0;
+    entries.forEach(e => {
+      const d = new Date(e.date);
+      if (d >= threeMonthsAgo) q += parseFloat(e.amount) || 0;
+    });
+    annualTotal = q * 4;
+    hasEntries = q > 0;
+  }
+
+  // ── Income summary banner ──
+  const summaryEl = document.getElementById('ladder-income-summary');
+  if (summaryEl) {
+    if (!hasEntries) {
+      summaryEl.innerHTML = `
+        <div style="font-size:22px">📊</div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:var(--muted2);line-height:1.6">
+            <strong style="color:var(--gold)">No income logged yet.</strong> Log income on the Income page and your current level will be highlighted automatically.
+          </div>
+        </div>
+        <button class="btn btn-sm" onclick="showPage('income');updateMobTitle('income')" style="background:var(--gold);color:#000;font-weight:700;flex-shrink:0">+ Log Income</button>`;
+    } else {
+      const monthly = annualTotal / 12;
+      // Find current level
+      const lvl = LADDER_LEVELS.find(l => annualTotal >= l.minAnnual && annualTotal < l.maxAnnual) || LADDER_LEVELS[LADDER_LEVELS.length-1];
+      summaryEl.innerHTML = `
+        <div style="font-size:28px">📊</div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px">Your estimated annual income</div>
+          <div style="font-size:24px;font-weight:800;color:var(--gold)">£${Math.round(annualTotal).toLocaleString()}</div>
+          <div style="font-size:12px;color:var(--muted2);margin-top:2px">(£${Math.round(monthly).toLocaleString()}/month · based on logged entries)</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">You are at</div>
+          <div style="font-size:14px;font-weight:800;color:${lvl.color}">${lvl.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${lvl.range}</div>
+        </div>`;
+    }
+  }
+
+  // ── Render cards ──
+  const container = document.getElementById('ladder-cards-container');
+  if (!container) return;
+
+  container.innerHTML = LADDER_LEVELS.map((lvl, i) => {
+    const isCurrent = hasEntries && annualTotal >= lvl.minAnnual && annualTotal < lvl.maxAnnual;
+
+    // Progress within current level (for the progress bar)
+    let progress = 0;
+    if (isCurrent && lvl.maxAnnual !== Infinity) {
+      progress = Math.round(((annualTotal - lvl.minAnnual) / (lvl.maxAnnual - lvl.minAnnual)) * 100);
+    } else if (isCurrent && lvl.maxAnnual === Infinity) {
+      progress = 60;
+    }
+
+    return `
+    <div class="ladder-card ${isCurrent ? 'ladder-current' : ''}"
+         style="--lc:${lvl.color}; --progress:${progress}%"
+         id="ladder-card-${i}">
+      <div class="ladder-dot"></div>
+      <div class="ladder-stripe"></div>
+      <div class="ladder-current-badge">YOU ARE HERE</div>
+
+      <div class="ladder-header">
+        <div class="ladder-badge">
+          <div class="ladder-badge-range">${lvl.range}</div>
+          <div class="ladder-badge-label">Annual Income</div>
+        </div>
+        <div class="ladder-title-block">
+          <div class="ladder-level-name">${lvl.name}</div>
+          <div class="ladder-tagline">${lvl.tagline}</div>
+          ${isCurrent ? `
+          <div style="margin-top:10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.07em">Progress through this level</div>
+            <div class="ladder-progress-bar"><div class="ladder-progress-fill"></div></div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px">${progress}% of the way to the next level</div>
+          </div>` : ''}
+        </div>
+      </div>
+
+      <div class="ladder-character">${lvl.character}</div>
+
+      <div class="ladder-body">
+        <div class="ladder-good">
+          <div class="ladder-col-title">✓ The Good</div>
+          ${lvl.good.map(p => `<div class="ladder-point"><div class="ladder-point-dot"></div><div>${p}</div></div>`).join('')}
+        </div>
+        <div class="ladder-ugly">
+          <div class="ladder-col-title">✗ The Ugly</div>
+          ${lvl.ugly.map(p => `<div class="ladder-point"><div class="ladder-point-dot"></div><div>${p}</div></div>`).join('')}
+        </div>
+      </div>
+
+      <div class="ladder-stat">
+        <div class="ladder-stat-icon">📌</div>
+        <div>${lvl.stat}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Intersection Observer for scroll-in lighting effect ──
+  if (_ladderObserver) _ladderObserver.disconnect();
+  _ladderObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('ladder-lit');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.ladder-card').forEach(card => {
+    _ladderObserver.observe(card);
+  });
+}
+
 function updateMobTitle(page) {
   const names = {
     dashboard:'📊 Dashboard', income:'💵 Income', expenses:'💸 Expenses',
     subscriptions:'🔄 Subscriptions', goals:'🎯 Goals', essentials:'🏡 Bare Minimum',
     savings:'🏦 Savings', runway:'🛟 Runway', milestones:'🗓️ Milestones',
-    hustles:'🚀 Hustles', delusion:'👁️ Delusionment'
+    hustles:'🚀 Hustles', delusion:'👁️ Delusionment', ladder:'📈 The Ladder'
   };
   const t = document.getElementById('mob-topbar-title');
   if (t) t.textContent = names[page] || '💰 MONEY OS';
@@ -4217,6 +4665,30 @@ function updateMobTitle(page) {
   <div class="wheel-outer" id="income-wheel-outer" style="pointer-events:auto"></div>
 </div>
 
+<!-- ══ THE LADDER PAGE ══ -->
+<div class="page" id="page-ladder" style="display:none">
+  <div class="page-header">
+    <div>
+      <h2 style="font-size:26px;font-weight:900;letter-spacing:-0.5px">📈 The Ladder</h2>
+      <p style="color:var(--muted);margin-top:4px;font-size:13px">What life actually looks like at every income level in the UK — raw, real, no filter.</p>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <div class="ladder-intro">
+    <h3>Every level is earned.<br>Most people never move.</h3>
+    <p>This isn't about money. It's about the life that money buys — or doesn't. Read this slowly. Find where you are. Sit with it. Then decide whether you're good with that.</p>
+  </div>
+
+  <!-- Current income display -->
+  <div id="ladder-income-summary" style="background:rgba(245,197,66,0.06);border:1px solid rgba(245,197,66,0.2);border-radius:14px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap"></div>
+
+  <!-- The Spine + Cards -->
+  <div class="ladder-spine" id="ladder-cards-container">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
 <!-- ══ FIREBASE SETUP MODAL ══ -->
 <div class="modal-overlay" id="modal-firebase-setup" style="display:none" onclick="if(event.target===this)closeModal('modal-firebase-setup')">
   <div class="modal" style="max-width:560px;width:100%;max-height:92vh;overflow-y:auto">
@@ -4246,4 +4718,3 @@ function updateMobTitle(page) {
 
 </body>
 </html>
- 
